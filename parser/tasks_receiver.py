@@ -10,7 +10,7 @@ def do_task(ch, method, properties, body):
     print(" [x] Received %r" % task_id)
     if url:
         change_task_status(task_id, "parsing")
-        parse_url(url)
+        parse_url(url, task_id)
         change_task_status(task_id, "parsed")
     else:
         print("Incorrect task_id {0}".format(task_id))

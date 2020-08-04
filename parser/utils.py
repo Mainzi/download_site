@@ -1,5 +1,7 @@
 import os
 import sqlite3
+from shutil import make_archive, rmtree
+import re
 
 parent_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
@@ -26,3 +28,28 @@ def change_task_status(task_id, status):
     conn.commit()
     conn.close()
     return True
+
+
+def get_folder_name(task_id):
+    folder_name = "content/{0}/".format(task_id)
+    if not os.path.exists(folder_name):
+        os.mkdir(folder_name)
+    return folder_name
+
+
+def save_to_file(content, filename):
+    filename = re.sub(r"[\\:*?\"<>\|]", "_", filename)
+    try:
+        with open(filename, 'wb') as f:
+            f.write(content)
+    except FileNotFoundError as e:
+        print(e)
+
+
+def archive_folder(folder_name):
+    if os.path.exists(folder_name):
+        make_archive(folder_name, 'zip', folder_name)
+        rmtree(folder_name)
+        return folder_name
+    else:
+        return False
