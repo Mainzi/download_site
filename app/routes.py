@@ -3,6 +3,7 @@ import uuid
 from app import app, db
 from app.forms import URLForm, TaskForm
 from app.models import Task
+from app.tasks import send_task
 
 
 @app.route('/')
@@ -30,8 +31,8 @@ def task_status(task_id):
     if not task:
         return "No task with id {0}".format(task_id), 404
 
-    if task.status == "parsing":
-        return 'Task {0} with url={1} is {2} now'.format(task.id, task.url, task.status)
+    if task.status != "parsed":
+        return 'Task {0} {1} with url={2}'.format(task.id, task.status, task.url)
     else:
         # TODO: return link to download archive
         return render_template('base.html')
@@ -43,9 +44,12 @@ def new_task():
     form_for_url = URLForm()
     if form_for_url.validate_on_submit():
         task_id = uuid.uuid4().hex
-        db.session.add(Task(id=task_id, url=form_for_url.URL.data, status='parsing'))
+        db.session.add(Task(id=task_id, url=form_for_url.URL.data, status='added'))
         db.session.commit()
+
+        send_task(task_id)
         flash('Your URL: {0} parsing with task №{1}'.format(form_for_url.URL.data, task_id))
+
         return task_id
 
     return redirect(url_for('index'))
