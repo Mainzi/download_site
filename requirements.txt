@@ -1,0 +1,5 @@
+Flask
+python-dotenv
+flask-wtf
+wtforms
+flask-sqlalchemy

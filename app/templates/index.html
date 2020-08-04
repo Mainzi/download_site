@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Parse your URL</h1>
+    <form action="{{ url_for('new_task') }}" method="post">
+        {{ URLForm.hidden_tag() }}
+        <p>
+            {{ URLForm.URL.label }}<br>
+            {{ URLForm.URL(size=32) }}<br>
+        </p>
+        <p>{{ URLForm.submit() }}</p>
+    </form>
+
+    <h1>Information about task</h1>
+    <form action="{{ url_for('taskform_handle') }}" method="post">
+        {{ TaskForm.hidden_tag() }}
+        <p>
+            {{ TaskForm.task_id.label }}<br>
+            {{ TaskForm.task_id(size=32) }}<br>
+        </p>
+        <p>{{ TaskForm.submit() }}</p>
+    </form>
+
+    {% for task in tasks %}
+    <div><p>{{ task.id }}: <b>{{ task.status }}</b> {{ task.url }} {{ task.start_time }}</p></div>
+    {% endfor %}
+{% endblock %}
