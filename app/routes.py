@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, send_from_directory, abort
 import uuid
 from app import app, db
 from app.forms import URLForm, TaskForm
@@ -29,13 +29,12 @@ def taskform_handle():
 def task_status(task_id):
     task = Task.query.get(task_id)
     if not task:
-        return "No task with id {0}".format(task_id), 404
+        return abort(404, description="No task with id {0}".format(task_id))
 
     if task.status != "parsed":
         return 'Task {0} {1} with url={2}'.format(task.id, task.status, task.url)
     else:
-        # TODO: return link to download archive
-        return render_template('base.html')
+        return url_for('get_archive', archive_id=task.id, _external=True)
 
 
 @app.route('/tasks', methods=['POST'])
@@ -53,3 +52,12 @@ def new_task():
         return task_id
 
     return redirect(url_for('index'))
+
+
+@app.route("/get-archive/<string:archive_id>", methods=['GET'])
+def get_archive(archive_id):
+    try:
+        return send_from_directory(app.config["CONTENT_DIRECTORY"],
+                                   filename="{0}.zip".format(archive_id), as_attachment=True)
+    except FileNotFoundError:
+        abort(404, description="File {0}.zip not found".format(archive_id))
