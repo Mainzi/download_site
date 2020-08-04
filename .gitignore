@@ -152,3 +152,4 @@ fabric.properties
 
 #db
 *.db
+parser/content/*

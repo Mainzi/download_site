@@ -1,7 +1,7 @@
-Flask
-python-dotenv
-flask-wtf
-wtforms
-flask-sqlalchemy
-pika
-sqlite3
+Flask==1.1.2
+python-dotenv==0.14.0
+flask-wtf==0.14.3
+wtforms==2.3.3
+flask-sqlalchemy==2.4.4
+pika==1.1.0
+bs4==0.0.1
