@@ -3,13 +3,14 @@ from pip._vendor import requests
 import re
 from bs4 import BeautifulSoup
 from utils import get_folder, save_to_file, archive_folder, transform_url, check_url
+import logging
 
 
 def parse_url(url, task_id):
-    print("{0} start parsing".format(url))
-    download_data_from_url(url, task_id=task_id)
-    archive_folder(get_folder(task_id))
-    print("{0} parsed".format(url))
+    logging.info(f'Start parsing {url}')
+    folder_name = download_data_from_url(url, task_id=task_id)
+    archive_folder(folder_name)
+    logging.info(f'End parsing {url}')
 
 
 def download_data_from_url(url, task_id, base_url=None, depth=1):
@@ -33,7 +34,7 @@ def download_data_from_url(url, task_id, base_url=None, depth=1):
     download_css(soup, folder, base_url)
 
     if depth > 0:
-        links = map(lambda x: transform_url(x, base_url), find_another_urls(soup))
+        links = set(map(lambda x: transform_url(x, base_url), find_another_urls(soup)))
         for i, link in enumerate(filter(lambda x: check_url(x, base_url), links)):
             download_data_from_url(link, "{0}/{1}".format(task_id, i), base_url=base_url, depth=depth - 1)
 
@@ -42,11 +43,9 @@ def download_data_from_url(url, task_id, base_url=None, depth=1):
 
 def download_media(parsed_data, folder, base_url):
     # find all jpg, png, gif, svg
-    print("Download media")
     links = set([link['href'] for link in parsed_data.findAll('link', href=True)] +
                 [img['src'] for img in parsed_data.find_all('img', src=True)])
     for link in links:
-        print(link)
         filename = re.search(r'/([\w_\-.]+[.](jpg|gif|png|jpeg|svg))$', link)
         link = transform_url(link, base_url)
         if not filename or link is None:
@@ -59,10 +58,8 @@ def download_media(parsed_data, folder, base_url):
 
 def download_js(parsed_data, folder, base_url):
     # find all js
-    print("Download JS")
     links = [sc["src"] for sc in parsed_data.find_all("script", src=True)]
     for link in links:
-        print(link)
         filename = re.search(r'/([^/]+)$', link)
         link = transform_url(link, base_url)
         if not filename or link is None:
@@ -75,10 +72,8 @@ def download_js(parsed_data, folder, base_url):
 
 def download_css(parsed_data, folder, base_url):
     # find all css
-    print("Download CSS")
     links = [link['href'] for link in parsed_data.findAll('link', href=True, rel="stylesheet")]
     for link in links:
-        print(link)
         filename = re.search(r'/([^/]+)$', link)
         link = transform_url(link, base_url)
         if not filename or link is None:

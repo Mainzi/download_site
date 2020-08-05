@@ -1,21 +1,25 @@
 import functools
 import threading
 import pika
+import logging
 
 from utils import get_url_from_db, change_task_status
 from custom_parser import parse_url
+
+logging.basicConfig(filename='parser.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 
 def do_task(body):
     task_id = body.decode("utf-8")
     url = get_url_from_db(task_id)
-    print(" [x] Received %r" % task_id)
+    logging.info(f'Received task: {task_id}')
     if url:
         change_task_status(task_id, "parsing")
         parse_url(url, task_id)
         change_task_status(task_id, "parsed")
     else:
-        print("Incorrect task_id {0}".format(task_id))
+        logging.info(f'Incorrect task_id: {task_id}')
 
 
 def ack_message(ch, delivery_tag):

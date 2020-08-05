@@ -2,6 +2,7 @@ import os
 import sqlite3
 from shutil import make_archive, rmtree
 import re
+import logging
 
 parent_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 
@@ -43,7 +44,7 @@ def save_to_file(content, filename):
         with open(filename, 'wb') as f:
             f.write(content)
     except FileNotFoundError as e:
-        print(e)
+        logging.exception("Exception occurred while saving file")
 
 
 def archive_folder(folder_name):
