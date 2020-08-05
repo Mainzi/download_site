@@ -44,7 +44,7 @@ def download_media(parsed_data, folder, base_url):
     # find all jpg, png, gif, svg
     print("Download media")
     links = set([link['href'] for link in parsed_data.findAll('link', href=True)] +
-                [img['src'] for img in parsed_data.find_all('img')])
+                [img['src'] for img in parsed_data.find_all('img', src=True)])
     for link in links:
         print(link)
         filename = re.search(r'/([\w_\-.]+[.](jpg|gif|png|jpeg|svg))$', link)

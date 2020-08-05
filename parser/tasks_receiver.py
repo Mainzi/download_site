@@ -6,9 +6,6 @@ from utils import get_url_from_db, change_task_status
 from custom_parser import parse_url
 
 
-# docker run --hostname localhost -p 8080:5672 -p 15672:15672 rabbitmq:3-management
-
-
 def do_task(body):
     task_id = body.decode("utf-8")
     url = get_url_from_db(task_id)

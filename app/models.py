@@ -10,6 +10,3 @@ class Task(db.Model):
 
     def __repr__(self):
         return '<Task {0}: {1}>'.format(self.id, self.status)
-
-# >>> from app import db
-# >>> db.create_all()
