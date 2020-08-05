@@ -9,11 +9,16 @@ import logging
 def parse_url(url, task_id):
     logging.info(f'Start parsing {url}')
     folder_name = download_data_from_url(url, task_id=task_id)
-    archive_folder(folder_name)
     logging.info(f'End parsing {url}')
+    if folder_name:
+        archive_folder(folder_name)
+        return folder_name
+    else:
+        return False
 
 
 def download_data_from_url(url, task_id, base_url=None, depth=1):
+    # TODO: change return false to raise some exception
     folder = get_folder(task_id)
     if base_url is None:
         base_url = re.search(r'((https|http)://[\w_\-.]+)', url)
@@ -21,7 +26,12 @@ def download_data_from_url(url, task_id, base_url=None, depth=1):
             return False
         base_url = base_url.group(1)
 
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except requests.exceptions.RequestException as e:
+        logging.error(f'Exception occurred while request to {url}\n {e}')
+        return False
+
     http_encoding = response.encoding if 'charset' in response.headers.get('content-type', '').lower() else None
     html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
     encoding = html_encoding or http_encoding

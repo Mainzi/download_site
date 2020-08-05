@@ -16,8 +16,11 @@ def do_task(body):
     logging.info(f'Received task: {task_id}')
     if url:
         change_task_status(task_id, "parsing")
-        parse_url(url, task_id)
-        change_task_status(task_id, "parsed")
+        result = parse_url(url, task_id)
+        if result:
+            change_task_status(task_id, "parsed")
+        else:
+            change_task_status(task_id, "error")
     else:
         logging.info(f'Incorrect task_id: {task_id}')
 
