@@ -1,0 +1,65 @@
+version: "3.5"
+
+services:
+
+  flask-server:
+
+    build: server/
+    container_name: flask-server
+
+    env_file: database.conf
+    environment:
+      - RABBITMQ_URL=rabbit
+      - RABBITMQ_PORT=5672
+      
+      - POSTGRES_HOST=database
+
+    ports:
+      - 5000:5000
+
+    depends_on:
+      - rabbit
+      - database
+
+
+  parser:
+
+    build: parser/
+    container_name: parser-url
+
+    env_file: database.conf
+    environment:
+      - RABBITMQ_URL=rabbit
+      - RABBITMQ_PORT=5672
+      
+      - POSTGRES_HOST=database
+
+    ports:
+      - 5001:5000
+
+    depends_on:
+      - rabbit
+      - database
+
+
+  rabbit:
+    container_name: rabbitmq-tasks
+    image: rabbitmq:latest
+    # ports:
+    #   - 15672:15672
+
+
+  database:
+    container_name: postgres
+    image: postgres:latest
+
+    env_file: database.conf
+
+    ports:
+      - 5432:5432  
+    volumes:
+      - db_volume:/var/lib/postgresql
+
+
+volumes:
+  db_volume:

@@ -2,9 +2,10 @@ import functools
 import threading
 import pika
 import logging
+import os
 
-from utils import get_url_from_db, change_task_status
 from custom_parser import parse_url
+from database import get_url_from_db, change_task_status
 
 logging.basicConfig(filename='parser.log', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
@@ -12,8 +13,8 @@ logging.basicConfig(filename='parser.log', level=logging.INFO,
 
 def do_task(body):
     task_id = body.decode("utf-8")
-    url = get_url_from_db(task_id)
     logging.info(f'Received task: {task_id}')
+    url = get_url_from_db(task_id)
     if url:
         change_task_status(task_id, "parsing")
         result = parse_url(url, task_id)
@@ -48,8 +49,10 @@ def on_message(ch, method_frame, _header_frame, body, args):
 
 
 credentials = pika.PlainCredentials('guest', 'guest')
-
-parameters = pika.ConnectionParameters('localhost', 8080, '/', credentials=credentials, heartbeat=5)
+print(os.environ.get('RABBITMQ_URL'), os.environ.get('RABBITMQ_PORT'))
+parameters = pika.ConnectionParameters(os.environ.get('RABBITMQ_URL') or 'localhost',
+                                       os.environ.get('RABBITMQ_PORT') or 8080, '/', credentials=credentials,
+                                       heartbeat=5)
 connection = pika.BlockingConnection(parameters)
 
 channel = connection.channel()
