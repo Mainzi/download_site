@@ -44,14 +44,14 @@ services:
 
   rabbit:
     container_name: rabbitmq-tasks
-    image: rabbitmq:latest
+    image: rabbitmq:3.8
     # ports:
     #   - 15672:15672
 
 
   database:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:12
 
     env_file: database.conf
 
