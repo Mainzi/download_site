@@ -11,7 +11,7 @@ from app.tasks import send_task
 def index():
     form_for_url = URLForm()
     form_for_task = TaskForm()
-    all_tasks = Task.query.order_by(Task.start_time.desc()).all()
+    all_tasks = Task.query.order_by(Task.start_time).all()
     return render_template('index.html', URLForm=form_for_url, TaskForm=form_for_task, tasks=all_tasks)
 
 

@@ -35,6 +35,7 @@ services:
       
       - POSTGRES_HOST=database
       - PARSER_THREADS=10
+      - DEFAULT_DEPTH=2
 
     ports:
       - 5002:5000
@@ -58,10 +59,13 @@ services:
     env_file: database.conf
 
     ports:
-      - 5432:5432  
+      - 5432:5432
+"""
+# if you want to save db
     volumes:
       - db_volume:/var/lib/postgresql
 
 
 volumes:
   db_volume:
+"""

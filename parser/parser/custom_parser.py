@@ -1,14 +1,15 @@
-from bs4.dammit import EncodingDetector
 from pip._vendor import requests
 import re
-from bs4 import BeautifulSoup
-from utils import get_folder, save_to_file, archive_folder, transform_url, check_url
 import logging
+import os
+from bs4 import BeautifulSoup
+from bs4.dammit import EncodingDetector
+from utils import get_folder, save_to_file, archive_folder, transform_url, check_url
 
 
 def parse_url(url, task_id):
     logging.info(f'Start parsing {url}')
-    folder_name = download_data_from_url(url, task_id=task_id)
+    folder_name = download_data_from_url(url, task_id=task_id, depth=int(os.environ.get('DEFAULT_DEPTH', 1)))
     logging.info(f'Try save archive {folder_name}')
     archive_folder(folder_name)
     logging.info(f'End parsing {url}')
