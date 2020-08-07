@@ -60,12 +60,10 @@ services:
 
     ports:
       - 5432:5432
-"""
-# if you want to save db
-    volumes:
-      - db_volume:/var/lib/postgresql
-
-
-volumes:
-  db_volume:
-"""
+## if you want to save db
+#    volumes:
+#      - db_volume:/var/lib/postgresql
+#
+#
+#volumes:
+#  db_volume:
