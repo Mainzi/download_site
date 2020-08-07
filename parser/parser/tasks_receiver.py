@@ -71,7 +71,7 @@ channel.queue_declare(queue="parse_urls")
 channel.queue_bind(queue="parse_urls", exchange="test_exchange", routing_key="standard_key")
 
 # prefetch_count ~ the number of threads
-channel.basic_qos(prefetch_count=2)
+channel.basic_qos(prefetch_count=int(os.environ.get('PARSER_THREADS', 2)))
 
 threads = []
 on_message_callback = functools.partial(on_message, args=(connection, threads))

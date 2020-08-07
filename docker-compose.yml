@@ -13,6 +13,7 @@ services:
       - RABBITMQ_PORT=5672
       
       - POSTGRES_HOST=database
+      - PARSER_PORT=5002
 
     ports:
       - 5000:5000
@@ -33,9 +34,10 @@ services:
       - RABBITMQ_PORT=5672
       
       - POSTGRES_HOST=database
+      - PARSER_THREADS=10
 
     ports:
-      - 5001:5000
+      - 5002:5000
 
     depends_on:
       - rabbit

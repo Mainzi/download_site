@@ -34,7 +34,7 @@ def task_status(task_id):
     if task.status != "parsed":
         return 'Task {0} {1} with url={2}'.format(task.id, task.status, task.url)
     else:
-        return f"http://127.0.0.1:5001/get-archive/{task.id}"
+        return f'http://127.0.0.1:{app.config["PARSER_PORT"]}/get-archive/{task.id}'
 
 
 @app.route('/tasks', methods=['POST'])
