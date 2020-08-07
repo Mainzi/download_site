@@ -9,28 +9,20 @@ import logging
 def parse_url(url, task_id):
     logging.info(f'Start parsing {url}')
     folder_name = download_data_from_url(url, task_id=task_id)
+    logging.info(f'Try save archive {folder_name}')
+    archive_folder(folder_name)
     logging.info(f'End parsing {url}')
-    if folder_name:
-        archive_folder(folder_name)
-        return folder_name
-    else:
-        return False
 
 
 def download_data_from_url(url, task_id, base_url=None, depth=1):
-    # TODO: change return false to raise some exception
     folder = get_folder(task_id)
     if base_url is None:
         base_url = re.search(r'((https|http)://[\w_\-.]+)', url)
         if not base_url:
-            return False
+            raise requests.exceptions.InvalidURL(f"This is not a valid URL: {url}")
         base_url = base_url.group(1)
 
-    try:
-        response = requests.get(url)
-    except requests.exceptions.RequestException as e:
-        logging.error(f'Exception occurred while request to {url}\n {e}')
-        return False
+    response = requests.get(url)
 
     http_encoding = response.encoding if 'charset' in response.headers.get('content-type', '').lower() else None
     html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
@@ -46,8 +38,10 @@ def download_data_from_url(url, task_id, base_url=None, depth=1):
     if depth > 0:
         links = set(map(lambda x: transform_url(x, base_url), find_another_urls(soup)))
         for i, link in enumerate(filter(lambda x: check_url(x, base_url), links)):
-            download_data_from_url(link, "{0}/{1}".format(task_id, i), base_url=base_url, depth=depth - 1)
-
+            try:
+                download_data_from_url(link, "{0}/{1}".format(task_id, i), base_url=base_url, depth=depth - 1)
+            except requests.exceptions.RequestException as e:
+                logging.error(f'Exception occurred while request to {url}\n {e}')
     return folder
 
 

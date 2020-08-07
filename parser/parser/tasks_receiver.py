@@ -3,7 +3,7 @@ import threading
 import pika
 import logging
 import os
-
+from pip._vendor import requests
 from custom_parser import parse_url
 from database import get_url_from_db, change_task_status
 
@@ -17,11 +17,16 @@ def do_task(body):
     url = get_url_from_db(task_id)
     if url:
         change_task_status(task_id, "parsing")
-        result = parse_url(url, task_id)
-        if result:
-            change_task_status(task_id, "parsed")
-        else:
+        try:
+            parse_url(url, task_id)
+        except FileNotFoundError as e:
+            logging.error(f'Error with files while parsing task: {task_id}\n   {e}')
             change_task_status(task_id, "error")
+        except requests.exceptions.RequestException as e:
+            logging.error(f'Error with request while parsing task: {task_id}\n   {e}')
+            change_task_status(task_id, "error")
+        else:
+            change_task_status(task_id, "parsed")
     else:
         logging.info(f'Incorrect task_id: {task_id}')
 
